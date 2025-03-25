@@ -27,7 +27,7 @@ def get_summary(text: str) -> str:
             parts=[
                 types.Part.from_text(
                     text=f"""
-                    summarize why he can success with bullet points only in zht
+                    用列點的方式總結他為什麼可以說服他的朋友簽署罷免連署書
 
                     {text}
                 """
