@@ -10,13 +10,14 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 
-def get_embeddings(texts: list[str]) -> list[genai.types.ContentEmbedding]:
+def get_embeddings(texts: list[str]) -> list[list[float]]:
     response = client.models.embed_content(
         model="gemini-embedding-exp-03-07",
         contents=texts,
         config={"output_dimensionality": 64},
     )
-    return response.embeddings
+
+    return [np.array(emb.values).tolist() for emb in response.embeddings]
 
 
 def get_summary(text: str) -> str:
@@ -63,21 +64,25 @@ def save_data(data: dict[str, Any]) -> None:
 
 def main():
     data = load_data()
-
-    contents = [story["content"] for story in data["stories"]]
+    stories = data["stories"]
+    sources = [story["source"] for story in stories]
+    contents = [story["content"] for story in stories]
     summaries = [get_summary(content) for content in contents]
-
     embeddings = get_embeddings(contents)
-    embedding_values = [np.array(emb.values).tolist() for emb in embeddings]
 
-    embedded_stories = [
-        {**story, "embedding": embedding, "summary": summary}
-        for story, embedding, summary in zip(
-            data["stories"], embedding_values, summaries
+    processed_stories = [
+        {
+            "source": source,
+            "content": content,
+            "embedding": embedding,
+            "summary": summary,
+        }
+        for source, content, embedding, summary in zip(
+            sources, contents, embeddings, summaries
         )
     ]
 
-    new_data = {"stories": embedded_stories}
+    new_data = {"stories": processed_stories}
     save_data(new_data)
 
 
