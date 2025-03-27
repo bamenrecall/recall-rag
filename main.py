@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from scone import rag_query
 
 app = FastAPI()
 
@@ -9,7 +10,10 @@ async def health_check():
 
 @app.get("/search")
 async def search(q: str | None = None):
-    return {"query": q}
+    return {
+        "query": q,
+        "url": rag_query(q)
+    }
 
 if __name__ == "__main__":
     import uvicorn
