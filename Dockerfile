@@ -1,17 +1,16 @@
 FROM python:3.11-slim
 
-# Install curl for healthcheck
+# Install build dependencies
 RUN apt-get update && \
-    apt-get install -y curl && \
+    apt-get install -y curl build-essential && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy requirements.txt for installation
-COPY requirements.txt .
+# Copy dependency files
+COPY pyproject.toml .
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -e .
 
 # Copy application code
 COPY . .
