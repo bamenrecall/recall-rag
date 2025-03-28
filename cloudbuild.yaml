@@ -21,3 +21,5 @@ steps:
     - 'asia-east1'
 images:
 - 'asia-east1-docker.pkg.dev/bamen-tw/cloud-run-source-deploy/recall-rag/recall-rag:$COMMIT_SHA'
+options:
+  logging: CLOUD_LOGGING_ONLY
