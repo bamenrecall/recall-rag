@@ -1,8 +1,23 @@
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from scone import rag_query
+from contextlib import asynccontextmanager
+from faiss import IndexFlatL2
+from search import get_contents_and_embeddings, gen_faiss, get_prompt_url
 
-app = FastAPI()
+ml_models = {}
+
+def init_faiss() -> IndexFlatL2:
+    embeddings, summaries = get_contents_and_embeddings()
+    faiss_index = gen_faiss(embeddings)
+    return faiss_index
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ml_models["faiss"] = init_faiss()
+    yield
+    ml_models.clear()
+
+
+app = FastAPI(lifespan=lifespan)
 
 @app.get("/health")
 async def health_check():
@@ -12,7 +27,7 @@ async def health_check():
 async def search(q: str | None = None):
     return {
         "query": q,
-        "url": rag_query(q)
+        "url": get_prompt_url(q, ml_models["faiss"])
     }
 
 if __name__ == "__main__":
