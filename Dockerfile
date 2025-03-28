@@ -7,8 +7,8 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Copy dependency files
-COPY pyproject.toml .
+COPY pyproject.toml uv.lock /app/
+RUN  uv sync --frozen --no-install-project --no-editable
 
 RUN pip install --no-cache-dir -e .
 
