@@ -47,10 +47,15 @@ def get_prompt_url(query_text: str, faiss_index: IndexFlatL2):
 
     print(f"search results for {query_text}:", search_results)
     examples = [f"{i+1}. {example}" for i, (example, _) in enumerate(search_results)]
+    # prompt = f"""
+    #     繁體中文回覆
+    #     根據以下案例生產出適合我的說服其他人的策略，並給出聊天範例：
+    #     {"\n".join(examples)}
+    # """
     prompt = f"""
-        繁體中文回覆
-        根據以下案例生產出適合我的說服其他人的策略，並給出聊天範例：
-        {"\n".join(examples)}
+        繁體中文回覆問題： {query_text}
+        基於以下內容:
+        {examples}
     """
     url = "http://grok.com?q=" + urllib.parse.quote(prompt)
     return url
