@@ -1,0 +1,22 @@
+steps:
+# Build the image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'asia-east1-docker.pkg.dev/bamen-tw/cloud-run-source-deploy/recall-rag/recall-rag:$COMMIT_SHA', '.']
+  env:
+   - 'DOCKER_BUILDKIT=1'
+# Push the image to Artifact Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'asia-east1-docker.pkg.dev/bamen-tw/cloud-run-source-deploy/recall-rag/recall-rag:$COMMIT_SHA']
+# Deploy image to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args: 
+    - 'run'
+    - 'deploy'
+    - 'recall-rag'
+    - '--image'
+    - 'asia-east1-docker.pkg.dev/bamen-tw/cloud-run-source-deploy/recall-rag/recall-rag:$COMMIT_SHA'
+    - '--region'
+    - 'asia-east1'
+images:
+- 'asia-east1-docker.pkg.dev/bamen-tw/cloud-run-source-deploy/recall-rag/recall-rag:$COMMIT_SHA'
